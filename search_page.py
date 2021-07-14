@@ -42,7 +42,7 @@ for t in find_all_a:
     if '/product--' in t['href']:
         link = 'https://market.yandex.ru/' + t['href'] + '/reviews'
         links.append(link)
-        f.writelines(link + '\n')
+        f.write(link + '\n')
 f.close()
 
 # for link in links:

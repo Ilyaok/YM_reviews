@@ -14,16 +14,22 @@ product--televizor-xiaomi-mi-tv-4a-32-t2-31-5-2019=475050001
 Все остальные строки из трех полей: поле Опыт использования, поле Достоинства, Поле недостатки.
 """
 
+#from search_page import links
 from bs4 import BeautifulSoup
 import requests
-#from search_page import links
 
+links = []
 f = open('links_file.txt', 'r')
-# for link in f:
-#     print(link)
+for link in f:
+    links.append(link)
+f.close()
 
-link = 'https://market.yandex.ru/product--televizor-xiaomi-mi-tv-4a-32-t2-31-5-2019/475050001'
+link1 = 'https://market.yandex.ru/product--televizor-xiaomi-mi-tv-4a-32-t2-31-5-2019/475050001'
 
 def reviews_parse(link):
+    filename = link[link.find('product--'):]
+    soup =
+    f = open(filename, 'w')
+    f.write()
 
-
+reviews_parse(link1)
