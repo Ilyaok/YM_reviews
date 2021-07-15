@@ -15,21 +15,81 @@ product--televizor-xiaomi-mi-tv-4a-32-t2-31-5-2019=475050001
 """
 
 #from search_page import links
+from settings import proxies, headers
 from bs4 import BeautifulSoup
 import requests
+import csv
+from pathlib import Path
+from os import walk
 
-links = []
-f = open('links_file.txt', 'r')
-for link in f:
-    links.append(link)
-f.close()
 
-link1 = 'https://market.yandex.ru/product--televizor-xiaomi-mi-tv-4a-32-t2-31-5-2019/475050001'
+def reviews_parse_from_file(filename):
+    #чтение html из файла
+    html = ''
+    f = open(Path.cwd() / 'files' / filename, 'rb')
+    for line in f:
+        html = html + line.decode('utf8')
+    f.close()
 
-def reviews_parse(link):
-    filename = link[link.find('product--'):]
-    soup =
-    f = open(filename, 'w')
-    f.write()
+    soup = BeautifulSoup(html, 'html.parser')
 
-reviews_parse(link1)
+    #заполняем общий отзыв (первая строка)
+    common_result = ''
+    common_list = soup.findAll(class_='_16Nb447nub')
+
+    for t in common_list:
+        common_result = common_result + t.text
+
+    common_result = common_result.replace('Достоинства', '')
+    common_result = common_result.replace('»«', '» «')
+    common_review_to_csv = common_result.split('Недостатки')
+
+    # review_list = soup.findAll(class_='_272cj8YvHe')
+    # print(review_list)
+
+    filename = filename.replace('.html', '.csv')
+    with open(Path.cwd() / 'reviews' / filename, mode='w') as w_file:
+        file_writer = csv.writer(w_file, delimiter="#", lineterminator="\r")
+        file_writer.writerow(common_review_to_csv)
+
+
+def reviews_parse_from_html(url):
+    """Выгрузка данных из html На данный момент реализована только выгрузка общего отзыва"""
+#   выгрузка html с сайта непосредственно
+    html = requests.get(url, proxies=proxies, headers=headers)
+    if 'captcha' in html.text:
+        print('Captcha detected, please change proxy in settings.py')
+    soup = BeautifulSoup(html, 'html.parser')
+    common_result = ''
+
+    common_list = soup.findAll(class_='_16Nb447nub')
+    for t in common_list:
+        common_result = common_result + t.text
+
+    common_result = common_result.replace('Достоинства', '')
+    common_result = common_result.replace('»«', '» «')
+    common_review_to_csv = common_result.split('Недостатки')
+
+    #формируем имя файла
+    filename = url[url.find('product--'):] + '.csv'
+    filename = filename.replace('/reviews', '')
+    filename = filename.replace('/', '=')
+
+    with open(Path.cwd() / 'reviews' / filename, mode='w') as w_file:
+        file_writer = csv.writer(w_file, delimiter="#", lineterminator="\r")
+        file_writer.writerow(common_review_to_csv)
+
+
+files = walk(Path.cwd() / 'files')
+k = 0
+try:
+    for data in files:
+        for file in data[2]:
+            if 'product--' in file and '.html' in file:
+                reviews_parse_from_file(file)
+                k += 1
+except:
+    print('Something went wrong')
+finally:
+    print(f'Successfully parsed {k} files')
+

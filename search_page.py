@@ -8,22 +8,12 @@
 
 from bs4 import BeautifulSoup
 import requests
+from settings import proxies, headers
 
 #здесь вводим стартовый url после поискового запроса на Яндекс.Маркете
 start_url = "https://market.yandex.ru/catalog--televizory/18040671/list?cpa=0&hid=90639&how=opinions&onstock=1&local-offers-first=0"
 
-proxies = {
-    'http': 'http://45.136.53.230:8080',
-    'https': 'http://45.136.53.230:8080'
-}
-
-headers = {
-    'User-Agent': 'Petr Kovalev',
-    'From': 'kovalev@yandex.ru'
-}
-
 search_page = requests.get(start_url, proxies=proxies, headers=headers)
-print(search_page.text)
 try:
     search_page.status_code == 200
 except:
